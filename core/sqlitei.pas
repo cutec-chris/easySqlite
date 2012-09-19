@@ -108,9 +108,9 @@ var
   StringValue: String;
 begin
   if ABoolean then
-    StringValue := '''TRUE'''
+    StringValue := '1'
   else
-    StringValue := '''FALSE''';
+    StringValue := '0';
   ReplaceNextParam(StringValue);
   Result := Self;
 end;
