@@ -1,12 +1,10 @@
 program SqliteI_Tests;
+{$MODE ObjFpc}
+{$H+}
 
-{$mode objfpc}{$H+}
-{$M+}
-uses {$IFDEF UNIX} {$IFDEF UseCThreads}
-  cthreads, {$ENDIF} {$ENDIF}
-  Classes,
-  SysUtils, dateutils,
-  SqliteI { you can add units after this };
+uses Classes, SysUtils, DateUtils,
+  (* project units *)
+  SqliteI;
 
 var
   X: TSqliteConnector;
@@ -15,20 +13,13 @@ var
 
 begin
   X := TSqliteConnector.Create('test.sqlite');
-  A := Now();
   Y := X.Prepare('SELECT Id, Name, Town, Active FROM Firm WHERE Id=? OR Town=? ORDER BY Name DESC;');
-  Y.BindParam(2).BindParam('Berlin').BindParam('Name');
+  Y.BindParam(2).BindParam('Berlin');
   if Y.Execute then begin
-    B := Now;
-    WriteLn(MilliSecondsBetween(A, B));
-    while Y.Fetch do begin
-      WriteLn(Y.Booleans('Active'));
-      WriteLn(Y.Integers('Id'));
-      WriteLn(Y.Strings('Town'));
-      WriteLn(Y.Strings('Name'));
-      WriteLn('------------------------------------');
-    end;
-  end;
+    while Y.Fetch do
+      WriteLn(Y.Integers('Active'), ' | ', Y.Integers('Id'), ' | ', Y.Strings('Town'), ' | ', Y.Strings('Name'));
+  end else
+    WriteLn(Y.ErrorNumber, ': ', Y.ErrorMessage);
   ReadLn;
   FreeAndNil(Y);
   FreeAndNil(X);
