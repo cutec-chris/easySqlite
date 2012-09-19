@@ -18,7 +18,7 @@ type
       QueryResult, Row: TStrings;
       RowPointer: Integer;
     private
-      Connector: TSqliteConnector;
+      Connection: TSQLite;
       SqlString: String;
     strict private
       procedure ReplaceNextParam(AStringValue: String);
@@ -27,30 +27,25 @@ type
       constructor Create();
       destructor Destroy; override;
     public
+      function AffectedRows: Int64;
       function BindParam(ABoolean: Boolean): TSqliteStatement;
       function BindParam(AInteger: Integer): TSqliteStatement;
       function BindParam(AString: String): TSqliteStatement;
-      function Booleans(Index: Integer): Boolean;
-      function Count: Integer;
+      function Booleans(Index: Int64): Boolean;
+      function Count: Int64;
       function Execute: Boolean;
       function Fetch: Boolean;
-      function Integers(Index: Integer): Integer;
-      function Seek(Index: Integer): Boolean;
-      function Strings(Index: Integer): String;
+      function InsertRowId: Int64;
+      function Integers(Index: Int64): Integer;
+      function Seek(Index: Int64): Boolean;
+      function Strings(Index: Int64): String;
   end;
 
   TSqliteConnector = class(TObject)
     strict private
       FDatabaseFilename: String;
     strict private
-      procedure CloseConnection(AConnection: TSQLite);
-      procedure HandleConnectionError(AConnection: TSQLite);
       function GetConnection: TSQLite;
-    private
-      procedure ExecuteSql(SqlString: String);
-      function Insert(SqlString: String): Integer;
-      function Query(SqlString: String): TStrings;
-      function Query(SqlString: String; QueryResult: TStrings): TStrings;
     public
       constructor Create(ADatabaseFilename: String);
     public
@@ -60,6 +55,8 @@ type
 
 
 implementation
+
+(* == TSqliteStatement == *)
 
 procedure TSqliteStatement.ReplaceNextParam(AStringValue: String);
 begin
@@ -83,7 +80,13 @@ destructor TSqliteStatement.Destroy;
 begin
   FreeAndNil(Row);
   FreeAndNil(QueryResult);
+  FreeAndNil(Connection);
   inherited Destroy;
+end;
+
+function TSqliteStatement.AffectedRows: Int64;
+begin
+  Result := Connection.ChangeCount;
 end;
 
 function TSqliteStatement.BindParam(ABoolean: Boolean): TSqliteStatement;
@@ -116,7 +119,7 @@ begin
   Result := Self;
 end;
 
-function TSqliteStatement.Count: Integer;
+function TSqliteStatement.Count: Int64;
 begin
   Result := QueryResult.Count - 1;
   if Result < 0 then
@@ -125,7 +128,7 @@ end;
 
 function TSqliteStatement.Execute: Boolean;
 begin
-  QueryResult := Connector.Query(SqlString, QueryResult);
+  Result := Connection.Query(SqlString, QueryResult);
   RowPointer := -1;
 end;
 
@@ -134,22 +137,27 @@ begin
   Result := Seek(RowPointer + 1);
 end;
 
-function TSqliteStatement.Booleans(Index: Integer): Boolean;
+function TSqliteStatement.InsertRowId: Int64;
+begin
+  Result := Connection.LastInsertRow;
+end;
+
+function TSqliteStatement.Booleans(Index: Int64): Boolean;
 begin
   Result := StrToBool(GetField(Index));
 end;
 
-function TSqliteStatement.Integers(Index: Integer): Integer;
+function TSqliteStatement.Integers(Index: Int64): Integer;
 begin
   Result := StrToInt(GetField(Index));
 end;
 
-function TSqliteStatement.Strings(Index: Integer): String;
+function TSqliteStatement.Strings(Index: Int64): String;
 begin
   Result := GetField(Index);
 end;
 
-function TSqliteStatement.Seek(Index: Integer): Boolean;
+function TSqliteStatement.Seek(Index: Int64): Boolean;
 begin
   if Index < 0 then Index := 0;
   if Index < Count then begin
@@ -159,69 +167,12 @@ begin
     Result := False;
 end;
 
-procedure TSqliteConnector.CloseConnection(AConnection: TSQLite);
-begin
-  FreeAndNil(AConnection);
-end;
+
+(* == TSqliteConnector == *)
 
 function TSqliteConnector.GetConnection: TSQLite;
 begin
   Result := TSQLite.Create(FDatabaseFilename);
-end;
-
-procedure TSqliteConnector.ExecuteSql(SqlString: String);
-var
-  MyConnection: TSQLite;
-begin
-  try
-    MyConnection := GetConnection;
-    if not(MyConnection.Query(SqlString, nil)) then
-      HandleConnectionError(MyConnection);
-  finally
-    CloseConnection(MyConnection);
-  end;
-end;
-
-function TSqliteConnector.Insert(SqlString: String): Integer;
-var
-  MyConnection: TSQLite;
-begin
-  try
-    MyConnection := GetConnection;
-    if MyConnection.Query(SqlString, nil) then
-      Result := MyConnection.LastInsertRow
-    else
-      HandleConnectionError(MyConnection);
-  finally
-    CloseConnection(MyConnection);
-  end;
-end;
-
-procedure TSqliteConnector.HandleConnectionError(AConnection: TSQLite);
-begin
-  if AConnection.LastError > 0 then
-    raise ESqlite.Create('<SQLite Error> ' + AConnection.LastErrorMessage);
-end;
-
-function TSqliteConnector.Query(SqlString: String): TStrings;
-begin
-  Result := Query(SqlString, TStringList.Create);
-end;
-
-function TSqliteConnector.Query(SqlString: String; QueryResult: TStrings): TStrings;
-var
-  MyConnection: TSQLite;
-begin
-  Result := nil;
-  try
-    MyConnection := GetConnection;
-    if MyConnection.Query(SqlString, QueryResult) then
-      Result := QueryResult
-    else
-      HandleConnectionError(MyConnection);
-  finally
-    CloseConnection(MyConnection);
-  end;
 end;
 
 constructor TSqliteConnector.Create(ADatabaseFilename: String);
@@ -233,7 +184,7 @@ end;
 function TSqliteConnector.Prepare(SqlString: String): TSqliteStatement;
 begin
   Result := TSqliteStatement.Create();
-  Result.Connector := Self;
+  Result.Connection := GetConnection;
   Result.SqlString := SqlString;
 end;
 
