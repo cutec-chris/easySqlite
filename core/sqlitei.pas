@@ -8,15 +8,12 @@ uses
   Classes, SysUtils, SQLite3db;
 
 type
-  ESqlite = class(Exception)
-  end;
-
   TSqliteConnector = class;
 
   TSqliteStatement = class(TObject)
     strict private
       QueryResult, Row: TStrings;
-      RowPointer: Integer;
+      RowPointer: Int64;
     private
       Connection: TSQLite;
       SqlString: String;
@@ -33,8 +30,11 @@ type
       function BindParam(AString: String): TSqliteStatement;
       function Booleans(Index: Int64): Boolean;
       function Count: Int64;
+      function ErrorNumber: Int64;
+      function ErrorMessage: String;
       function Execute: Boolean;
       function Fetch: Boolean;
+      function FieldCount: Int64;
       function InsertRowId: Int64;
       function Integers(Index: Int64): Integer;
       function Seek(Index: Int64): Boolean;
@@ -121,9 +121,19 @@ end;
 
 function TSqliteStatement.Count: Int64;
 begin
-  Result := QueryResult.Count - 1;
+  Result := Int64(QueryResult.Count) - 1;
   if Result < 0 then
     Result := 0;
+end;
+
+function TSqliteStatement.ErrorNumber: Int64;
+begin
+  Result := Connection.LastError;
+end;
+
+function TSqliteStatement.ErrorMessage: String;
+begin
+  Result := Connection.LastErrorMessage;
 end;
 
 function TSqliteStatement.Execute: Boolean;
@@ -135,6 +145,11 @@ end;
 function TSqliteStatement.Fetch: Boolean;
 begin
   Result := Seek(RowPointer + 1);
+end;
+
+function TSqliteStatement.FieldCount: Int64;
+begin
+  Result := Row.Count;
 end;
 
 function TSqliteStatement.InsertRowId: Int64;
