@@ -22,9 +22,9 @@ begin
     B := Now;
     WriteLn(MilliSecondsBetween(A, B));
     while Y.Fetch do begin
-      WriteLn(Y.Integers(0));
-      WriteLn(Y.Strings(1));
-      WriteLn(Y.Strings(2));
+      WriteLn(Y.Integers('Id'));
+      WriteLn(Y.Strings('Town'));
+      WriteLn(Y.Strings('Name'));
       WriteLn('------------------------------------');
     end;
   end;

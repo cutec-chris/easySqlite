@@ -12,7 +12,7 @@ type
 
   TSqliteStatement = class(TObject)
     strict private
-      QueryResult, Row: TStrings;
+      Fields, QueryResult, Row: TStrings;
       RowPointer: Int64;
     private
       Connection: TSQLite;
@@ -20,6 +20,7 @@ type
     strict private
       procedure ReplaceNextParam(AStringValue: String);
       function GetField(Index: Integer): String;
+      function GetField(Fieldname: String): String;
     public
       constructor Create();
       destructor Destroy; override;
@@ -29,6 +30,7 @@ type
       function BindParam(AInteger: Integer): TSqliteStatement;
       function BindParam(AString: String): TSqliteStatement;
       function Booleans(Index: Int64): Boolean;
+      function Booleans(Fieldname: String): Boolean;
       function Count: Int64;
       function ErrorNumber: Int64;
       function ErrorMessage: String;
@@ -37,8 +39,10 @@ type
       function FieldCount: Int64;
       function InsertRowId: Int64;
       function Integers(Index: Int64): Integer;
+      function Integers(Fieldname: String): Integer;
       function Seek(Index: Int64): Boolean;
       function Strings(Index: Int64): String;
+      function Strings(Fieldname: String): String;
   end;
 
   TSqliteConnector = class(TObject)
@@ -68,10 +72,19 @@ begin
   Result := Row.Strings[Index];
 end;
 
+function TSqliteStatement.GetField(Fieldname: String): String;
+var
+  Index: Int64;
+begin
+  Index := Fields.IndexOf(Fieldname);
+  Result := GetField(Index);
+end;
+
 constructor TSqliteStatement.Create;
 begin
   inherited Create;
   QueryResult := TStringList.Create;
+  Fields := TStringList.Create;
   Row := TStringList.Create;
   RowPointer := -1;
 end;
@@ -79,6 +92,7 @@ end;
 destructor TSqliteStatement.Destroy;
 begin
   FreeAndNil(Row);
+  FreeAndNil(Fields);
   FreeAndNil(QueryResult);
   FreeAndNil(Connection);
   inherited Destroy;
@@ -139,6 +153,8 @@ end;
 function TSqliteStatement.Execute: Boolean;
 begin
   Result := Connection.Query(SqlString, QueryResult);
+  if Result then
+    Fields.CommaText := QueryResult.Strings[0];
   RowPointer := -1;
 end;
 
@@ -149,7 +165,7 @@ end;
 
 function TSqliteStatement.FieldCount: Int64;
 begin
-  Result := Row.Count;
+  Result := Fields.Count;
 end;
 
 function TSqliteStatement.InsertRowId: Int64;
@@ -162,14 +178,29 @@ begin
   Result := StrToBool(GetField(Index));
 end;
 
+function TSqliteStatement.Booleans(Fieldname: String): Boolean;
+begin
+  Result := StrToBool(GetField(Fieldname));
+end;
+
 function TSqliteStatement.Integers(Index: Int64): Integer;
 begin
   Result := StrToInt(GetField(Index));
 end;
 
+function TSqliteStatement.Integers(Fieldname: String): Integer;
+begin
+  Result := StrToInt(GetField(Fieldname));
+end;
+
 function TSqliteStatement.Strings(Index: Int64): String;
 begin
   Result := GetField(Index);
+end;
+
+function TSqliteStatement.Strings(Fieldname: String): String;
+begin
+  Result := GetField(Fieldname);
 end;
 
 function TSqliteStatement.Seek(Index: Int64): Boolean;
