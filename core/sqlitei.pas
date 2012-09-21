@@ -1,3 +1,32 @@
+(* SqliteI, a wrapper for SQLite-Access
+
+  Copyright (C) 2012 Michael Fuchs, http://www.michael-fuchs.net
+
+  This library is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Library General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or (at your
+  option) any later version with the following modification:
+
+  As a special exception, the copyright holders of this library give you
+  permission to link this library with independent modules to produce an
+  executable, regardless of the license terms of these independent modules,and
+  to copy and distribute the resulting executable under terms of your choice,
+  provided that you also meet, for each linked independent module, the terms
+  and conditions of the license of that module. An independent module is a
+  module which is not derived from or based on this library. If you modify
+  this library, you may extend this exception to your version of the library,
+  but you are not obligated to do so. If you do not wish to do so, delete this
+  exception statement from your version.
+
+  This program is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License
+  for more details.
+
+  You should have received a copy of the GNU Library General Public License
+  along with this library; if not, write to the Free Software Foundation,
+  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
+
 unit SqliteI;
 {$MODE ObjFpc}
 {$H+}
@@ -27,19 +56,25 @@ type
     public
       function AffectedRows: Int64;
       function BindParam(ABoolean: Boolean): TSqliteStatement;
+      function BindParam(ACurrency: Currency): TSqliteStatement;
+      function BindParam(AFloat: Extended): TSqliteStatement;
       function BindParam(AInteger: Integer): TSqliteStatement;
       function BindParam(AString: String): TSqliteStatement;
       function Booleans(Index: Int64): Boolean;
       function Booleans(Fieldname: String): Boolean;
       function Count: Int64;
+      function Currencies(Index: Int64): Currency;
+      function Currencies(Fieldname: String): Currency;
+      function Floats(Index: Int64): Extended;
+      function Floats(Fieldname: String): Extended;
       function ErrorNumber: Int64;
       function ErrorMessage: String;
       function Execute: Boolean;
       function Fetch: Boolean;
       function FieldCount: Int64;
       function InsertRowId: Int64;
-      function Integers(Index: Int64): Integer;
-      function Integers(Fieldname: String): Integer;
+      function Integers(Index: Int64): Int64;
+      function Integers(Fieldname: String): Int64;
       function Seek(Index: Int64): Boolean;
       function Strings(Index: Int64): String;
       function Strings(Fieldname: String): String;
@@ -115,6 +150,24 @@ begin
   Result := Self;
 end;
 
+function TSqliteStatement.BindParam(ACurrency: Currency): TSqliteStatement;
+var
+  StringValue: String;
+begin
+  StringValue := CurrToStr(ACurrency);
+  ReplaceNextParam(StringValue);
+  Result := Self;
+end;
+
+function TSqliteStatement.BindParam(AFloat: Extended): TSqliteStatement;
+var
+  StringValue: String;
+begin
+  StringValue := FloatToStr(AFloat);
+  ReplaceNextParam(StringValue);
+  Result := Self;
+end;
+
 function TSqliteStatement.BindParam(AInteger: Integer): TSqliteStatement;
 var
   StringValue: String;
@@ -128,7 +181,7 @@ function TSqliteStatement.BindParam(AString: String): TSqliteStatement;
 var
   StringValue: String;
 begin
-  StringValue := '''' + AString + '''';
+  StringValue := Pas2SQLStr(AString);
   ReplaceNextParam(StringValue);
   Result := Self;
 end;
@@ -138,6 +191,26 @@ begin
   Result := Int64(QueryResult.Count) - 1;
   if Result < 0 then
     Result := 0;
+end;
+
+function TSqliteStatement.Currencies(Index: Int64): Currency;
+begin
+  Result := StrToCurr(GetField(Index));
+end;
+
+function TSqliteStatement.Currencies(Fieldname: String): Currency;
+begin
+  Result := StrToCurr(GetField(Fieldname));
+end;
+
+function TSqliteStatement.Floats(Index: Int64): Extended;
+begin
+  Result := StrToFloat(GetField(Index));
+end;
+
+function TSqliteStatement.Floats(Fieldname: String): Extended;
+begin
+  Result := StrToFloat(GetField(Fieldname));
 end;
 
 function TSqliteStatement.ErrorNumber: Int64;
@@ -153,7 +226,7 @@ end;
 function TSqliteStatement.Execute: Boolean;
 begin
   Result := Connection.Query(SqlString, QueryResult);
-  if Result then
+  if Result and (QueryResult.Count > 0) then
     Fields.CommaText := QueryResult.Strings[0];
   RowPointer := -1;
 end;
@@ -183,12 +256,12 @@ begin
   Result := StrToBool(GetField(Fieldname));
 end;
 
-function TSqliteStatement.Integers(Index: Int64): Integer;
+function TSqliteStatement.Integers(Index: Int64): Int64;
 begin
   Result := StrToInt(GetField(Index));
 end;
 
-function TSqliteStatement.Integers(Fieldname: String): Integer;
+function TSqliteStatement.Integers(Fieldname: String): Int64;
 begin
   Result := StrToInt(GetField(Fieldname));
 end;

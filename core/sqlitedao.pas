@@ -18,7 +18,7 @@ type
       procedure CloseQuery(AQuery: TSQLite);
       procedure HandleQueryError(AQuery: TSQLite);
       function GetQuery: TSQLite;
-    protected
+    public
       procedure ExecuteSql(SqlString: String);
       function Insert(SqlString: String): Integer;
       function Query(SqlString: String): TStrings;
