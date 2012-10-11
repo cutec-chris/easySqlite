@@ -17,7 +17,8 @@
 <node CREATED="1348055240992" ID="ID_677494973" MODIFIED="1348056745080" TEXT="Zugriff auf ResultFields per Name">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1348055670986" ID="ID_51106416" MODIFIED="1348056157827" TEXT="Automapping f&#xfc;r Selects, Inserts und Updates">
+<node CREATED="1348643004654" ID="ID_519533645" MODIFIED="1348643040734" TEXT="OR-Mapping &#xe4;hnlich wie in iBatis"/>
+<node CREATED="1348055670986" ID="ID_51106416" MODIFIED="1348643041114" TEXT="Automapping f&#xfc;r Selects, Inserts und Updates">
 <richcontent TYPE="NOTE"><html>
   <head>
     
@@ -54,7 +55,8 @@
       Aufruf: &quot;SelectObject(ClassType: TClass; Table, WhereCondition: String);&quot;
     </p>
   </body>
-</html></richcontent>
+</html>
+</richcontent>
 </node>
 </node>
 </node>

@@ -72,6 +72,7 @@ type
       function Execute: Boolean;
       function Fetch: Boolean;
       function FieldCount: Int64;
+      function FieldNames(Index: Int64): String;
       function InsertRowId: Int64;
       function Integers(Index: Int64): Int64;
       function Integers(Fieldname: String): Int64;
@@ -239,6 +240,11 @@ end;
 function TSqliteStatement.FieldCount: Int64;
 begin
   Result := Fields.Count;
+end;
+
+function TSqliteStatement.FieldNames(Index: Int64): String;
+begin
+  Result := Fields[Index];
 end;
 
 function TSqliteStatement.InsertRowId: Int64;
