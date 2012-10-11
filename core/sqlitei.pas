@@ -63,12 +63,11 @@ type
       function Booleans(Index: Int64): Boolean;
       function Booleans(Fieldname: String): Boolean;
       function Count: Int64;
-      function Currencies(Index: Int64): Currency;
-      function Currencies(Fieldname: String): Currency;
       function Floats(Index: Int64): Extended;
       function Floats(Fieldname: String): Extended;
       function ErrorNumber: Int64;
       function ErrorMessage: String;
+      (*: Executes a the statement. Returns @true if the statement can be executed, otherwise @false. In this case @link(ErrorNumber) and @link(ErrorMessage) should be checked. *)
       function Execute: Boolean;
       function Fetch: Boolean;
       function FieldCount: Int64;
@@ -87,8 +86,11 @@ type
     strict private
       function GetConnection: TSQLite;
     public
+      (*: @param(ADatabaseFilename the full path to the sqlite db file) *)
       constructor Create(ADatabaseFilename: String);
     public
+      (*: Create a new TSqliteStatement, with the given SQL string.
+          @param(SqlString contains the SQL sourcecode for the statement) *)
       function Prepare(SqlString: String): TSqliteStatement;
   end;
 
@@ -192,16 +194,6 @@ begin
   Result := Int64(QueryResult.Count) - 1;
   if Result < 0 then
     Result := 0;
-end;
-
-function TSqliteStatement.Currencies(Index: Int64): Currency;
-begin
-  Result := StrToCurr(GetField(Index));
-end;
-
-function TSqliteStatement.Currencies(Fieldname: String): Currency;
-begin
-  Result := StrToCurr(GetField(Fieldname));
 end;
 
 function TSqliteStatement.Floats(Index: Int64): Extended;

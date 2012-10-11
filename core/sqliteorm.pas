@@ -43,6 +43,10 @@ type
     private
       function GetObjectFromActualStatementRecord(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
     public
+      (*: Excute a given TSqliteStatement and returns the first datarecord as an auto-mapped object.
+          @param(AStatemen a prepared TSqliteStatement)
+          @param(AOuttputClass type of the class to be returned)
+          @returns(a object from type AOutputClass or @nil if the query returns no result)*)
       function ExecuteStatementAsObject(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
       function ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass): TObjectList;
   end;

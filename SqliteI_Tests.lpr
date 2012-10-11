@@ -10,12 +10,12 @@ type
   TMyRecord = class(TObject)
     private
       FActive: Boolean;
-      FId: Integer;
+      FId: Currency;
       FName: String;
       FTown: String;
     published
       property Active: Boolean read FActive write FActive;
-      property Id: Integer read FId write FId;
+      property Id: Currency read FId write FId;
       property Town: String read FTown write FTown;
       property Name: String read FName write FName;
   end;
