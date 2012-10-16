@@ -39,21 +39,25 @@ uses
   SqliteI;
 
 type
-  TSqliteMapper = class(TObject)
+  TSqliteAutoMapper = class(TObject)
     private
       function GetObjectFromActualStatementRecord(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
     public
-      (*: Excute a given TSqliteStatement and returns the first datarecord as an auto-mapped object.
-          @param(AStatemen a prepared TSqliteStatement)
+      (*: Execute a given TSqliteStatement and returns the first datarecord as an auto-mapped object.
+          @param(AStatement a prepared TSqliteStatement)
           @param(AOuttputClass type of the class to be returned)
-          @returns(a object from type AOutputClass or @nil if the query returns no result)*)
+          @returns(a object from type TObjectList with zero, one or more objects) *)
       function ExecuteStatementAsObject(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
+      (*: Execute a given TSqliteStatement and returns result as a list with auto-mapped objects.
+          @param(AStatement a prepared TSqliteStatement)
+          @param(AOuttputClass type of the class to be returned)
+          @returns(a object from type AOutputClass or @nil if the query returns no result) *)
       function ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass): TObjectList;
   end;
 
 implementation
 
-function TSqliteMapper.GetObjectFromActualStatementRecord(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
+function TSqliteAutoMapper.GetObjectFromActualStatementRecord(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
 var
   i: Integer;
   ActualPropInfo: PPropInfo;
@@ -75,7 +79,7 @@ begin
   end;
 end;
 
-function TSqliteMapper.ExecuteStatementAsObject(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
+function TSqliteAutoMapper.ExecuteStatementAsObject(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
 begin
   Result := nil;
   if AStatement.Execute then begin
@@ -85,11 +89,12 @@ begin
   end;
 end;
 
-function TSqliteMapper.ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass): TObjectList;
+function TSqliteAutoMapper.ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass): TObjectList;
 var
   ActualObject: TObject;
 begin
-  // TODO: For better performance we could load the PropInfo in a List before and use them for every db record.
+  // TODO: For better performance we could load the PropInfo
+  //       in a List before and use them for every db record.
   Result := TObjectList.Create(True);
   if AStatement.Execute then begin
     while AStatement.Fetch do begin

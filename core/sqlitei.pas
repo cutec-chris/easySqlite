@@ -1,6 +1,6 @@
 (* SqliteI, a wrapper for SQLite-Access
 
-  Copyright (C) 2012 Michael Fuchs, http://www.michael-fuchs.net
+  Copyright (C) 2012 Michael Fuchs, http://www.michael-fuchs.net/
 
   This library is free software; you can redistribute it and/or modify it
   under the terms of the GNU Library General Public License as published by
@@ -54,28 +54,42 @@ type
       constructor Create();
       destructor Destroy; override;
     public
+
       function AffectedRows: Int64;
+      (*: Binds a Boolean as to the next parameter in the statement.
+          @returns(an instance to self, for using in a fluent context)*)
       function BindParam(ABoolean: Boolean): TSqliteStatement;
-      function BindParam(ACurrency: Currency): TSqliteStatement;
       function BindParam(AFloat: Extended): TSqliteStatement;
       function BindParam(AInteger: Integer): TSqliteStatement;
       function BindParam(AString: String): TSqliteStatement;
+      (*: @raises(EOutOfBound if Index is greater than @link(FieldCount) - 1)*)
       function Booleans(Index: Int64): Boolean;
       function Booleans(Fieldname: String): Boolean;
       function Count: Int64;
+      (*: @raises(EOutOfBound if Index is greater than @link(FieldCount) - 1)*)
       function Floats(Index: Int64): Extended;
       function Floats(Fieldname: String): Extended;
       function ErrorNumber: Int64;
       function ErrorMessage: String;
-      (*: Executes a the statement. Returns @true if the statement can be executed, otherwise @false. In this case @link(ErrorNumber) and @link(ErrorMessage) should be checked. *)
+      (*: Executes a the statement. Returns @true if the statement can be
+          executed, otherwise @false. In this case @link(ErrorNumber) and
+          @link(ErrorMessage) should be checked. *)
       function Execute: Boolean;
+      (*: Fetches the next record from the statement result. Returns @true if a
+          new record could be fetched, otherwise @false. *)
       function Fetch: Boolean;
+      (*: Returns the column number of the statement result. *)
       function FieldCount: Int64;
+      (*: Returns the name of the given column.
+          @param(Index the number of the column)
+          @raises(EOutOfBound if Index is greater than @link(FieldCount) - 1)*)
       function FieldNames(Index: Int64): String;
       function InsertRowId: Int64;
+      (*: @raises(EOutOfBound if Index is greater than @link(FieldCount) - 1)*)
       function Integers(Index: Int64): Int64;
       function Integers(Fieldname: String): Int64;
       function Seek(Index: Int64): Boolean;
+      (*: @raises(EOutOfBound if Index is greater than @link(FieldCount) - 1)*)
       function Strings(Index: Int64): String;
       function Strings(Fieldname: String): String;
   end;
@@ -149,15 +163,6 @@ begin
     StringValue := '1'
   else
     StringValue := '0';
-  ReplaceNextParam(StringValue);
-  Result := Self;
-end;
-
-function TSqliteStatement.BindParam(ACurrency: Currency): TSqliteStatement;
-var
-  StringValue: String;
-begin
-  StringValue := CurrToStr(ACurrency);
   ReplaceNextParam(StringValue);
   Result := Self;
 end;

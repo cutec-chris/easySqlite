@@ -12,7 +12,7 @@
   </body>
 </html></richcontent>
 <font BOLD="true" NAME="SansSerif" SIZE="12"/>
-<node CREATED="1348055236092" ID="ID_1857945472" MODIFIED="1348055239832" POSITION="right" TEXT="Features">
+<node CREATED="1348055236092" ID="ID_1857945472" MODIFIED="1350287693761" POSITION="right" TEXT="Features">
 <font BOLD="true" NAME="SansSerif" SIZE="12"/>
 <node CREATED="1348055240992" ID="ID_677494973" MODIFIED="1348056745080" TEXT="Zugriff auf ResultFields per Name">
 <icon BUILTIN="button_ok"/>
@@ -55,9 +55,9 @@
       Aufruf: &quot;SelectObject(ClassType: TClass; Table, WhereCondition: String);&quot;
     </p>
   </body>
-</html>
-</richcontent>
+</html></richcontent>
 </node>
+<node CREATED="1350287693761" ID="ID_1483340185" MODIFIED="1350287703449" TEXT="RTTI-Mapping zwischenspeichern (Cache)"/>
 </node>
 </node>
 </map>

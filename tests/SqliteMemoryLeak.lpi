@@ -10,7 +10,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="SqliteITest"/>
+      <Title Value="SqliteMemoryLeak"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -33,57 +33,24 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <Units Count="4">
+    <Units Count="1">
       <Unit0>
-        <Filename Value="SqliteI_Tests.lpr"/>
+        <Filename Value="SqliteMemoryLeak.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="SqliteI_Tests"/>
+        <UnitName Value="SqliteMemoryLeak"/>
       </Unit0>
-      <Unit1>
-        <Filename Value="sqlitedao.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="SqliteDao"/>
-      </Unit1>
-      <Unit2>
-        <Filename Value="sqlitei.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="SqliteI"/>
-      </Unit2>
-      <Unit3>
-        <Filename Value="core\sqliteorm.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="SqliteOrm"/>
-      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="bin\SqliteI_Tests"/>
+      <Filename Value="..\bin\SqliteMemoryLeak"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="core"/>
-      <UnitOutputDirectory Value="obj"/>
+      <UnitOutputDirectory Value="..\obj"/>
     </SearchPaths>
-    <Parsing>
-      <SyntaxOptions>
-        <CStyleOperator Value="False"/>
-        <AllowLabel Value="False"/>
-        <CPPInline Value="False"/>
-      </SyntaxOptions>
-    </Parsing>
-    <CodeGeneration>
-      <Optimizations>
-        <OptimizationLevel Value="0"/>
-      </Optimizations>
-    </CodeGeneration>
-    <Linking>
-      <Options>
-        <PassLinkerOptions Value="True"/>
-      </Options>
-    </Linking>
     <Other>
       <CompilerMessages>
         <MsgFileName Value=""/>
@@ -92,7 +59,7 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="4">
+    <Exceptions Count="3">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -102,9 +69,6 @@
       <Item3>
         <Name Value="EFOpenError"/>
       </Item3>
-      <Item4>
-        <Name Value="ESqlite"/>
-      </Item4>
     </Exceptions>
   </Debugging>
 </CONFIG>
