@@ -34,7 +34,7 @@ unit SqliteI;
 interface
 
 uses
-  Classes, SysUtils, SQLite3db;
+  Classes, SysUtils, Sqlite3Db;
 
 type
   TSqliteConnector = class;
@@ -54,7 +54,6 @@ type
       constructor Create();
       destructor Destroy; override;
     public
-
       function AffectedRows: Int64;
       (*: Binds a Boolean as to the next parameter in the statement.
           @returns(an instance to self, for using in a fluent context)*)

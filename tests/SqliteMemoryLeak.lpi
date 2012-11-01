@@ -33,12 +33,26 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <Units Count="1">
+    <Units Count="4">
       <Unit0>
         <Filename Value="SqliteMemoryLeak.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SqliteMemoryLeak"/>
       </Unit0>
+      <Unit1>
+        <Filename Value="sqlite3db.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SQLite3db"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="sqlite3.inc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="sqlite3.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="sqlite3"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -49,8 +63,26 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\core"/>
       <UnitOutputDirectory Value="..\obj"/>
     </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <CStyleOperator Value="False"/>
+        <AllowLabel Value="False"/>
+        <CPPInline Value="False"/>
+      </SyntaxOptions>
+    </Parsing>
+    <CodeGeneration>
+      <Optimizations>
+        <OptimizationLevel Value="0"/>
+      </Optimizations>
+    </CodeGeneration>
+    <Linking>
+      <Debugging>
+        <UseHeaptrc Value="True"/>
+      </Debugging>
+    </Linking>
     <Other>
       <CompilerMessages>
         <MsgFileName Value=""/>

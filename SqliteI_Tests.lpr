@@ -4,7 +4,7 @@ program SqliteI_Tests;
 
 uses heaptrc, Classes, SysUtils, DateUtils, Contnrs,
   (* project units *)
-  SqliteI, SqliteOrm, SQLite3db;
+  SqliteI, SqliteOrm;
 
 type
   TMyRecord = class(TObject)
@@ -21,68 +21,49 @@ type
   end;
 
 var
-  O: TSqliteAutoMapper;
-  X: TSqliteConnector;
-  Y: TSqliteStatement;
-  Z: TObjectList;
+  MyConnector: TSqliteConnector = nil;
 
-  M: TMyRecord;
-
-  A, B: TDateTime;
-  i, j: Integer;
-
-  C: TSQLite;
-  D: TStringList;
-
+function GenerateStatement(Connector: TSqliteConnector): TSqliteStatement;
 begin
- //SetHeapTraceOutput('test.trc');
+  Result := Connector.Prepare('SELECT Id, Name, Town, Active FROM Firm ORDER BY Id LIMIT 8;');
+end;
 
- C := TSQLite.Create('test.sqlite');
- D := TStringList.Create;
- //C.Query('SELECT Id, Name, Town, Active FROM Firm ORDER BY Id LIMIT 8;', D);
- WriteLn(D.Text);
- FreeAndNil(D);
- c.Free;
-// FreeAndNil(C);
- ReadLn;
-
-
-
- (* try
-    X := TSqliteConnector.Create('test.sqlite');
-    for j := 1 to 100000 do begin
-    Y := X.Prepare('SELECT Id, Name, Town, Active FROM Firm ORDER BY Id LIMIT 8;');
-
-    (* Auto-Mapper *)
-    (*O := TSqliteAutoMapper.Create;
-    A := Now;
-    Z := O.ExecuteStatementAsList(Y, TMyRecord);
-    for i := 0 to Z.Count - 1 do begin
-      M := Z[i] as TMyRecord;
-      WriteLn('ORM: ', M.Id, '; ', M.Active, '; ', M.Name, '; ', M.Town);
-    end;
-    B := Now;
-    WriteLn('---');
-    WriteLn(MilliSecondsBetween(A, B), LineEnding + LineEnding);
-      *)
-    (* SqliteI *)
-    A := Now;
-    if Y.Execute then begin
-      while Y.Fetch do begin
-        WriteLn('REC: ', Y.Integers('Id'), '; ', Y.Booleans('Active'), '; ', Y.Strings('Name'), '; ', Y.Strings('Town'));
-      end;
+procedure TestStatement;
+var
+  MyStatement: TSqliteStatement = nil;
+begin
+  try
+    MyStatement := GenerateStatement(MyConnector);
+    if MyStatement.Execute then begin
+      while MyStatement.Fetch do
+        WriteLn('REC: ', MyStatement.Integers('Id'), '; ',
+                Y.Booleans('Active'), '; ',
+                Y.Strings('Name'), '; ',
+                Y.Strings('Town'));
     end else
       WriteLn(Y.ErrorNumber, ': ', Y.ErrorMessage);
-    end;
+  finally
+    FreeAndNil(MyStatement);
+  end;
+end;
 
-    B := Now;
-    WriteLn('---');
-    WriteLn(MilliSecondsBetween(A, B));
+procedure TestAutoMapper;
+begin
+
+end;
+
+begin
+  try
+    MyConnector := TSqliteConnector.Create('test.sqlite');
+    TestStatement;
+    ReadLn;
+    TestAutoMapper;
     ReadLn;
   finally
-    FreeAndNil(O);
-    FreeAndNil(Z);
-    FreeAndNil(Y);
-    FreeAndNil(X);
-  end;*)
+    FreeAndNil(MyConnector);
+  end;
+
+  ReadLn;
+  FreeAndNil(Y);
+  FreeAndNil(X);
 end.
