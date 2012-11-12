@@ -22,10 +22,16 @@ type
 
 var
   MyConnector: TSqliteConnector = nil;
+  MyMapper: TSqliteAutoMapper = nil;
 
 function GenerateStatement(Connector: TSqliteConnector): TSqliteStatement;
 begin
   Result := Connector.Prepare('SELECT Id, Name, Town, Active FROM Firm ORDER BY Id LIMIT 8;');
+end;
+
+function GenerateNamedStatement(Connector: TSqliteConnector): TSqliteStatement;
+begin
+  Result := Connector.Prepare('SELECT Id, Name, Town, Active FROM Firm WHERE Active=@Active');
 end;
 
 procedure TestStatement;
@@ -36,34 +42,56 @@ begin
     MyStatement := GenerateStatement(MyConnector);
     if MyStatement.Execute then begin
       while MyStatement.Fetch do
-        WriteLn('REC: ', MyStatement.Integers('Id'), '; ',
-                Y.Booleans('Active'), '; ',
-                Y.Strings('Name'), '; ',
-                Y.Strings('Town'));
+        WriteLn('REC: ',
+                MyStatement.Integers('Id'), '; ',
+                MyStatement.Booleans('Active'), '; ',
+                MyStatement.Strings('Name'), '; ',
+                MyStatement.Strings('Town'));
+      WriteLn(MyStatement.GetPreparedSql);
     end else
-      WriteLn(Y.ErrorNumber, ': ', Y.ErrorMessage);
+      WriteLn(MyStatement.ErrorNumber, ': ', MyStatement.ErrorMessage);
   finally
     FreeAndNil(MyStatement);
   end;
 end;
 
 procedure TestAutoMapper;
+var
+  MyRec: TMyRecord = nil;
+  MyStatement: TSqliteStatement = nil;
+  Result : TList;
 begin
-
+  try
+    MyStatement := GenerateNamedStatement(MyConnector);
+    MyRec := TMyRecord.Create;
+    MyRec.Active := False;
+    MyMapper.BindObjectToParams(MyStatement, MyRec);
+    FreeAndNil(MyRec);
+    if MyStatement.Execute then begin
+      while MyStatement.Fetch do
+        WriteLn('REC: ',
+                MyStatement.Integers('Id'), '; ',
+                MyStatement.Booleans('Active'), '; ',
+                MyStatement.Strings('Name'), '; ',
+                MyStatement.Strings('Town'));
+      WriteLn(MyStatement.GetPreparedSql);
+    end else
+      WriteLn(MyStatement.ErrorNumber, ': ', MyStatement.ErrorMessage);
+  finally
+    FreeAndNil(MyStatement)
+  end;
 end;
 
 begin
   try
     MyConnector := TSqliteConnector.Create('test.sqlite');
+    MyMapper := TSqliteAutoMapper.Create;
     TestStatement;
     ReadLn;
     TestAutoMapper;
     ReadLn;
   finally
+    FreeAndNil(MyMapper);
     FreeAndNil(MyConnector);
   end;
-
-  ReadLn;
-  FreeAndNil(Y);
-  FreeAndNil(X);
 end.

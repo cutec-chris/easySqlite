@@ -45,8 +45,9 @@ type
       RowPointer: Int64;
     private
       Connection: TSQLite;
-      SqlString: String;
+      SqlString, OriginalSqlString: String;
     strict private
+      procedure ReplaceParam(ParamName, AStringValue: String);
       procedure ReplaceNextParam(AStringValue: String);
       function GetField(Index: Integer): String;
       function GetField(Fieldname: String): String;
@@ -58,9 +59,19 @@ type
       (*: Binds a Boolean as to the next parameter in the statement.
           @returns(an instance to self, for using in a fluent context)*)
       function BindParam(ABoolean: Boolean): TSqliteStatement;
+      (*: Binds a Float as to the next parameter in the statement.
+          @returns(an instance to self, for using in a fluent context)*)
       function BindParam(AFloat: Extended): TSqliteStatement;
+      (*: Binds a Integer as to the next parameter in the statement.
+          @returns(an instance to self, for using in a fluent context)*)
       function BindParam(AInteger: Integer): TSqliteStatement;
+      (*: Binds a String as to the next parameter in the statement.
+          @returns(an instance to self, for using in a fluent context)*)
       function BindParam(AString: String): TSqliteStatement;
+      function BindParam(ParamName: String; ABoolean: Boolean): TSqliteStatement;
+      function BindParam(ParamName: String; AFloat: Extended): TSqliteStatement;
+      function BindParam(ParamName: String; AInteger: Integer): TSqliteStatement;
+      function BindParam(ParamName: String; AString: String): TSqliteStatement;
       (*: @raises(EOutOfBound if Index is greater than @link(FieldCount) - 1)*)
       function Booleans(Index: Int64): Boolean;
       function Booleans(Fieldname: String): Boolean;
@@ -83,10 +94,12 @@ type
           @param(Index the number of the column)
           @raises(EOutOfBound if Index is greater than @link(FieldCount) - 1)*)
       function FieldNames(Index: Int64): String;
+      function GetPreparedSql: String;
       function InsertRowId: Int64;
       (*: @raises(EOutOfBound if Index is greater than @link(FieldCount) - 1)*)
       function Integers(Index: Int64): Int64;
       function Integers(Fieldname: String): Int64;
+      procedure ResetStatement;
       function Seek(Index: Int64): Boolean;
       (*: @raises(EOutOfBound if Index is greater than @link(FieldCount) - 1)*)
       function Strings(Index: Int64): String;
@@ -112,6 +125,11 @@ type
 implementation
 
 (* == TSqliteStatement == *)
+
+procedure TSqliteStatement.ReplaceParam(ParamName, AStringValue: String);
+begin
+  SqlString := StringReplace(SqlString, ParamName, AStringValue, [rfIgnoreCase, rfReplaceAll]);
+end;
 
 procedure TSqliteStatement.ReplaceNextParam(AStringValue: String);
 begin
@@ -193,6 +211,45 @@ begin
   Result := Self;
 end;
 
+function TSqliteStatement.BindParam(ParamName: String; ABoolean: Boolean): TSqliteStatement;
+var
+  StringValue: String;
+begin
+  if ABoolean then
+    StringValue := '1'
+  else
+    StringValue := '0';
+  ReplaceParam(ParamName, StringValue);
+  Result := Self;
+end;
+
+function TSqliteStatement.BindParam(ParamName: String; AFloat: Extended): TSqliteStatement;
+var
+  StringValue: String;
+begin
+  StringValue := FloatToStr(AFloat);
+  ReplaceParam(ParamName, StringValue);
+  Result := Self;
+end;
+
+function TSqliteStatement.BindParam(ParamName: String; AInteger: Integer): TSqliteStatement;
+var
+  StringValue: String;
+begin
+  StringValue := IntToStr(AInteger);
+  ReplaceParam(ParamName, StringValue);
+  Result := Self;
+end;
+
+function TSqliteStatement.BindParam(ParamName: String; AString: String): TSqliteStatement;
+var
+  StringValue: String;
+begin
+  StringValue := Pas2SQLStr(AString);
+  ReplaceParam(ParamName, StringValue);
+  Result := Self;
+end;
+
 function TSqliteStatement.Count: Int64;
 begin
   Result := Int64(QueryResult.Count) - 1;
@@ -243,6 +300,11 @@ begin
   Result := Fields[Index];
 end;
 
+function TSqliteStatement.GetPreparedSql: String;
+begin
+  Result := SqlString;
+end;
+
 function TSqliteStatement.InsertRowId: Int64;
 begin
   Result := Connection.LastInsertRow;
@@ -266,6 +328,11 @@ end;
 function TSqliteStatement.Integers(Fieldname: String): Int64;
 begin
   Result := StrToInt(GetField(Fieldname));
+end;
+
+procedure TSqliteStatement.ResetStatement;
+begin
+  SqlString := OriginalSqlString;
 end;
 
 function TSqliteStatement.Strings(Index: Int64): String;
@@ -307,6 +374,7 @@ begin
   Result := TSqliteStatement.Create();
   Result.Connection := GetConnection;
   Result.SqlString := SqlString;
+  Result.OriginalSqlString := SqlString;
 end;
 
 end.

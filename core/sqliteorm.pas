@@ -43,15 +43,20 @@ type
     private
       function GetObjectFromActualStatementRecord(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
     public
+      (*: Binds all published properties of an object to the corresponding named paramters of a
+          prepared statement.
+          @param(AStatement a prepared TSqliteStatement with named parameters)
+          @param(AObject a object containing the paramter values in published properties) *)
+      procedure BindObjectToParams(AStatement: TSqliteStatement; AObject: TObject);
       (*: Execute a given TSqliteStatement and returns the first datarecord as an auto-mapped object.
           @param(AStatement a prepared TSqliteStatement)
           @param(AOuttputClass type of the class to be returned)
-          @returns(a object from type TObjectList with zero, one or more objects) *)
+          @returns(a object from type AOutputClass or @nil if the query returns no result) *)
       function ExecuteStatementAsObject(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
       (*: Execute a given TSqliteStatement and returns result as a list with auto-mapped objects.
           @param(AStatement a prepared TSqliteStatement)
           @param(AOuttputClass type of the class to be returned)
-          @returns(a object from type AOutputClass or @nil if the query returns no result) *)
+          @returns(a object from type TObjectList with zero, one or more objects) *)
       function ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass): TObjectList;
   end;
 
@@ -74,6 +79,28 @@ begin
           tkBool: SetOrdProp(Result, ActualPropInfo, Ord(AStatement.Booleans(i)));
           tkFloat: SetFloatProp(Result, ActualPropInfo, AStatement.Floats(i));
         end;
+      end;
+    end;
+  end;
+end;
+
+procedure TSqliteAutoMapper.BindObjectToParams(AStatement: TSqliteStatement; AObject: TObject);
+var
+  i, LastProp: Integer;
+  PropInfos: PPropList;
+  ActualPropInfo: PPropInfo;
+  ActualParamName: String;
+begin
+  LastProp := GetPropList(AObject, PropInfos) - 1;
+  if LastProp >= 0 then begin
+    for i := 0 to LastProp do begin
+      ActualPropInfo := PropInfos^[i];
+      ActualParamName := '@' + ActualPropInfo^.Name;
+      case ActualPropInfo^.PropType^.Kind of
+        tkInteger, tkInt64: AStatement.BindParam(ActualParamName, GetInt64Prop(AObject, ActualPropInfo));
+        tkString, tkAString, tkLString, tkWString: AStatement.BindParam(ActualParamName, GetStrProp(AObject, ActualPropInfo));
+        tkBool: AStatement.BindParam(ActualParamName, Boolean(GetOrdProp(AObject, ActualPropInfo)));
+        tkFloat: AStatement.BindParam(ActualParamName, GetFloatProp(AObject, ActualPropInfo));
       end;
     end;
   end;
