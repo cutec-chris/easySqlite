@@ -58,6 +58,7 @@ type
           @param(AOuttputClass type of the class to be returned)
           @returns(a object from type TObjectList with zero, one or more objects) *)
       function ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass): TObjectList;
+      function ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass; AppendToList: TObjectList): TObjectList;
   end;
 
 implementation
@@ -117,12 +118,17 @@ begin
 end;
 
 function TSqliteAutoMapper.ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass): TObjectList;
+begin
+  Result := ExecuteStatementAsList(AStatement, AOutputClass, TObjectList.Create(True));
+end;
+
+function TSqliteAutoMapper.ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass; AppendToList: TObjectList): TObjectList;
 var
   ActualObject: TObject;
 begin
   // TODO: For better performance we could load the PropInfo
   //       in a List before and use them for every db record.
-  Result := TObjectList.Create(True);
+  Result := AppendToList;
   if AStatement.Execute then begin
     while AStatement.Fetch do begin
       ActualObject := GetObjectFromActualStatementRecord(AStatement, AOutputClass);

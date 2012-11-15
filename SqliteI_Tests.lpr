@@ -64,7 +64,7 @@ begin
   try
     MyStatement := GenerateNamedStatement(MyConnector);
     MyRec := TMyRecord.Create;
-    MyRec.Active := False;
+    MyRec.Active := True;
     MyMapper.BindObjectToParams(MyStatement, MyRec);
     FreeAndNil(MyRec);
     if MyStatement.Execute then begin
