@@ -118,6 +118,8 @@ type
       (*: Create a new TSqliteStatement, with the given SQL string.
           @param(SqlString contains the SQL sourcecode for the statement) *)
       function Prepare(SqlString: String): TSqliteStatement;
+    public
+      function DatabaseFilename: String;
   end;
 
 
@@ -375,6 +377,11 @@ begin
   Result.Connection := GetConnection;
   Result.SqlString := SqlString;
   Result.OriginalSqlString := SqlString;
+end;
+
+function TSqliteConnector.DatabaseFilename: String;
+begin
+  Result := FDatabaseFilename;
 end;
 
 end.
