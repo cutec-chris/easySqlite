@@ -129,6 +129,7 @@ begin
   // TODO: For better performance we could load the PropInfo
   //       in a List before and use them for every db record.
   Result := AppendToList;
+  if not Assigned(Result) then Result := TObjectList.Create(True);
   if AStatement.Execute then begin
     while AStatement.Fetch do begin
       ActualObject := GetObjectFromActualStatementRecord(AStatement, AOutputClass);
