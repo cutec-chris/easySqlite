@@ -2,7 +2,7 @@ program SqliteI_Tests;
 {$MODE ObjFpc}
 {$H+}
 
-uses heaptrc, Classes, SysUtils, DateUtils, Contnrs,
+uses heaptrc, Classes, SysUtils,
   (* project units *)
   SqliteI, SqliteOrm;
 
