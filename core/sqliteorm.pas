@@ -41,29 +41,29 @@ uses
 type
   TSqliteAutoMapper = class(TObject)
     private
-      function GetObjectFromActualStatementRecord(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
+      function GetObjectFromActualStatementRecord(const AStatement: TSqliteStatement; const AOutputClass: TClass): TObject;
     public
       (*: Binds all published properties of an object to the corresponding named paramters of a
           prepared statement.
           @param(AStatement a prepared TSqliteStatement with named parameters)
           @param(AObject a object containing the paramter values in published properties) *)
-      procedure BindObjectToParams(AStatement: TSqliteStatement; AObject: TObject);
+      procedure BindObjectToParams(const AStatement: TSqliteStatement; const AObject: TObject);
       (*: Execute a given TSqliteStatement and returns the first datarecord as an auto-mapped object.
           @param(AStatement a prepared TSqliteStatement)
           @param(AOuttputClass type of the class to be returned)
           @returns(a object from type AOutputClass or @nil if the query returns no result) *)
-      function ExecuteStatementAsObject(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
+      function ExecuteStatementAsObject(const AStatement: TSqliteStatement; const AOutputClass: TClass): TObject;
       (*: Execute a given TSqliteStatement and returns result as a list with auto-mapped objects.
           @param(AStatement a prepared TSqliteStatement)
           @param(AOuttputClass type of the class to be returned)
           @returns(a object from type TObjectList with zero, one or more objects) *)
-      function ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass): TObjectList;
-      function ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass; AppendToList: TObjectList): TObjectList;
+      function ExecuteStatementAsList(const AStatement: TSqliteStatement; const AOutputClass: TClass): TObjectList;
+      function ExecuteStatementAsList(const AStatement: TSqliteStatement; const AOutputClass: TClass; const AppendToList: TObjectList): TObjectList;
   end;
 
 implementation
 
-function TSqliteAutoMapper.GetObjectFromActualStatementRecord(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
+function TSqliteAutoMapper.GetObjectFromActualStatementRecord(const AStatement: TSqliteStatement; const AOutputClass: TClass): TObject;
 var
   i: Integer;
   ActualPropInfo: PPropInfo;
@@ -75,17 +75,21 @@ begin
       ActualPropInfo := GetPropInfo(Result, AStatement.FieldNames(i));
       if Assigned(ActualPropInfo) then begin
         case ActualPropInfo^.PropType^.Kind of
-          tkInteger, tkInt64: SetInt64Prop(Result, ActualPropInfo, AStatement.Integers(i));
-          tkString, tkAString, tkLString, tkWString: SetStrProp(Result, ActualPropInfo, AStatement.Strings(i));
-          tkBool: SetOrdProp(Result, ActualPropInfo, Ord(AStatement.Booleans(i)));
-          tkFloat: SetFloatProp(Result, ActualPropInfo, AStatement.Floats(i));
+          tkInteger, tkInt64:
+            SetInt64Prop(Result, ActualPropInfo, AStatement.Integers(i));
+          tkString, tkAString, tkLString, tkWString:
+            SetStrProp(Result, ActualPropInfo, AStatement.Strings(i));
+          tkBool:
+            SetOrdProp(Result, ActualPropInfo, Ord(AStatement.Booleans(i)));
+          tkFloat:
+            SetFloatProp(Result, ActualPropInfo, AStatement.Floats(i));
         end;
       end;
     end;
   end;
 end;
 
-procedure TSqliteAutoMapper.BindObjectToParams(AStatement: TSqliteStatement; AObject: TObject);
+procedure TSqliteAutoMapper.BindObjectToParams(const AStatement: TSqliteStatement; const AObject: TObject);
 var
   i, LastProp: Integer;
   PropInfos: PPropList;
@@ -98,16 +102,21 @@ begin
       ActualPropInfo := PropInfos^[i];
       ActualParamName := '@' + ActualPropInfo^.Name;
       case ActualPropInfo^.PropType^.Kind of
-        tkInteger, tkInt64: AStatement.BindParam(ActualParamName, GetInt64Prop(AObject, ActualPropInfo));
-        tkString, tkAString, tkLString, tkWString: AStatement.BindParam(ActualParamName, GetStrProp(AObject, ActualPropInfo));
-        tkBool: AStatement.BindParam(ActualParamName, Boolean(GetOrdProp(AObject, ActualPropInfo)));
-        tkFloat: AStatement.BindParam(ActualParamName, GetFloatProp(AObject, ActualPropInfo));
+        tkInteger, tkInt64:
+          AStatement.BindParam(ActualParamName, GetInt64Prop(AObject, ActualPropInfo));
+        tkString, tkAString, tkLString, tkWString:
+          AStatement.BindParam(ActualParamName, GetStrProp(AObject, ActualPropInfo));
+        tkBool:
+          AStatement.BindParam(ActualParamName, Boolean(GetOrdProp(AObject, ActualPropInfo)));
+        tkFloat:
+          AStatement.BindParam(ActualParamName, GetFloatProp(AObject, ActualPropInfo));
       end;
     end;
   end;
+  Freemem(PropInfos);
 end;
 
-function TSqliteAutoMapper.ExecuteStatementAsObject(AStatement: TSqliteStatement; AOutputClass: TClass): TObject;
+function TSqliteAutoMapper.ExecuteStatementAsObject(const AStatement: TSqliteStatement; const AOutputClass: TClass): TObject;
 begin
   Result := nil;
   if AStatement.Execute then begin
@@ -117,12 +126,12 @@ begin
   end;
 end;
 
-function TSqliteAutoMapper.ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass): TObjectList;
+function TSqliteAutoMapper.ExecuteStatementAsList(const AStatement: TSqliteStatement; const AOutputClass: TClass): TObjectList;
 begin
   Result := ExecuteStatementAsList(AStatement, AOutputClass, TObjectList.Create(True));
 end;
 
-function TSqliteAutoMapper.ExecuteStatementAsList(AStatement: TSqliteStatement; AOutputClass: TClass; AppendToList: TObjectList): TObjectList;
+function TSqliteAutoMapper.ExecuteStatementAsList(const AStatement: TSqliteStatement; const AOutputClass: TClass; const AppendToList: TObjectList): TObjectList;
 var
   ActualObject: TObject;
 begin
