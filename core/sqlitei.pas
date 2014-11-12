@@ -353,6 +353,7 @@ begin
   if Index < Count then begin
     RowPointer := Index;
     Row.CommaText := QueryResult.Strings[RowPointer + 1];
+    Result := True;
   end else
     Result := False;
 end;
