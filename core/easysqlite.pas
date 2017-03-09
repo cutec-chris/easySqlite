@@ -1,6 +1,6 @@
-(* SqliteI, a wrapper for SQLite-Access
+(* easySqlite, a wrapper for SQLite-Access
 
-  Copyright (C) 2012 Michael Fuchs, http://www.michael-fuchs.net/
+  Copyright (C) 2012-2017 Michael Fuchs, http://www.ypa-software.de
 
   This library is free software; you can redistribute it and/or modify it
   under the terms of the GNU Library General Public License as published by
@@ -27,7 +27,7 @@
   along with this library; if not, write to the Free Software Foundation,
   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *)
 
-unit SqliteI;
+unit EasySqlite;
 {$MODE ObjFpc}
 {$H+}
 
@@ -56,23 +56,30 @@ type
       destructor Destroy; override;
     public
       function AffectedRows: Int64;
-      (*: Binds a Boolean as to the next parameter in the statement.
-          @returns(an instance to self, for using in a fluent context)*)
+      (* Binds a Boolean to the next parameter in the statement.
+         @returns(an instance to self, for using in a fluent context) *)
       function BindParam(ABoolean: Boolean): TSqliteStatement;
-      (*: Binds a Float as to the next parameter in the statement.
-          @returns(an instance to self, for using in a fluent context)*)
+      (* Binds a Float to the next parameter in the statement.
+         @returns(an instance to self, for using in a fluent context) *)
       function BindParam(AFloat: Extended): TSqliteStatement;
-      (*: Binds a Integer as to the next parameter in the statement.
-          @returns(an instance to self, for using in a fluent context)*)
+      (* Binds a Integer to the next parameter in the statement.
+         @returns(an instance to self, for using in a fluent context) *)
       function BindParam(AInteger: Integer): TSqliteStatement;
-      (*: Binds a String as to the next parameter in the statement.
-          @returns(an instance to self, for using in a fluent context)*)
+      (* Binds a String to the next parameter in the statement.
+         @returns(an instance to self, for using in a fluent context) *)
       function BindParam(AString: String): TSqliteStatement;
+
+      (* Binds a Boolean to all params with name  @param(ParamName) *)
       function BindParam(ParamName: String; ABoolean: Boolean): TSqliteStatement;
+      (* Binds a Float to all params with name  @param(ParamName) *)
       function BindParam(ParamName: String; AFloat: Extended): TSqliteStatement;
+      (* Binds a Integer to all params with name  @param(ParamName) *)
       function BindParam(ParamName: String; AInteger: Integer): TSqliteStatement;
+      (* Binds a String to all params with name  @param(ParamName) *)
       function BindParam(ParamName: String; AString: String): TSqliteStatement;
-      (*: @raises(EOutOfBound if Index is greater than @link(FieldCount) - 1)*)
+      (* @raises(EOutOfBound if Index is greater than the available fields)
+         @raises (EConvertError if the conversion of field content to boolean fails)
+         *)
       function Booleans(Index: Int64): Boolean;
       function Booleans(Fieldname: String): Boolean;
       function Count: Int64;
@@ -130,12 +137,12 @@ implementation
 
 procedure TSqliteStatement.ReplaceParam(ParamName, AStringValue: String);
 begin
-  SqlString := StringReplace(SqlString, ParamName, AStringValue, [rfIgnoreCase, rfReplaceAll]);
+  SqlString := StringReplace(SqlString, ParamName, Pas2SQLStr(AStringValue), [rfIgnoreCase, rfReplaceAll]);
 end;
 
 procedure TSqliteStatement.ReplaceNextParam(AStringValue: String);
 begin
-  SqlString := StringReplace(SqlString, '?', AStringValue, []);
+  SqlString := StringReplace(SqlString, '?', Pas2SQLStr(AStringValue), []);
 end;
 
 function TSqliteStatement.GetField(Index: Integer): String;

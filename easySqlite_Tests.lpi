@@ -10,7 +10,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="SqliteITest"/>
+      <Title Value="easySqliteTest"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -35,7 +35,7 @@
     </RunParams>
     <Units Count="4">
       <Unit0>
-        <Filename Value="SqliteI_Tests.lpr"/>
+        <Filename Value="easySqlite_Tests.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SqliteI_Tests"/>
       </Unit0>
@@ -45,14 +45,14 @@
         <UnitName Value="SqliteDao"/>
       </Unit1>
       <Unit2>
-        <Filename Value="sqlitei.pas"/>
+        <Filename Value="core\easysqlite.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SqliteI"/>
       </Unit2>
       <Unit3>
-        <Filename Value="core\sqliteorm.pas"/>
+        <Filename Value="core\easysqliteorm.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="SqliteOrm"/>
+        <UnitName Value="EasySqliteOrm"/>
       </Unit3>
     </Units>
   </ProjectOptions>
@@ -60,7 +60,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="bin\SqliteI_Tests"/>
+      <Filename Value="bin\easySqlite_Tests"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
@@ -84,12 +84,6 @@
         <PassLinkerOptions Value="True"/>
       </Options>
     </Linking>
-    <Other>
-      <CompilerMessages>
-        <MsgFileName Value=""/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="4">

@@ -2,9 +2,9 @@ program SqliteI_Tests;
 {$MODE ObjFpc}
 {$H+}
 
-uses heaptrc, Classes, SysUtils,
+uses heaptrc, Classes, SysUtils, SQLite3db,
   (* project units *)
-  SqliteI, SqliteOrm;
+  EasySqlite, EasySqliteOrm;
 
 type
   TMyRecord = class(TObject)
@@ -13,16 +13,18 @@ type
       FId: Int64;
       FName: String;
       FTown: String;
+      FBlafasel: String;
     published
       property Active: Boolean read FActive write FActive;
       property Id: Int64 read FId write FId;
       property Town: String read FTown write FTown;
-      property Name: String read FName write FName;
+      property Name: String read FName;
   end;
 
 var
   MyConnector: TSqliteConnector = nil;
   MyMapper: TSqliteAutoMapper = nil;
+  x: TSQLite;
 
 function GenerateStatement(Connector: TSqliteConnector): TSqliteStatement;
 begin
@@ -82,14 +84,31 @@ begin
   end;
 end;
 
+procedure TestAutoMapperOut;
+var
+  MyRec: TMyRecord = nil;
+  MyStatement: TSqliteStatement = nil;
+  Result : TList;
+begin
+  try
+    MyStatement := GenerateStatement(MyConnector);
+    MyRec := MyMapper.ExecuteStatementAsObject(MyStatement, TMyRecord) as TMyRecord;
+  finally
+    FreeANdNil(MyRec);
+    FreeAndNil(MyStatement)
+  end;
+end;
+
 begin
   try
     MyConnector := TSqliteConnector.Create('test.sqlite');
     MyMapper := TSqliteAutoMapper.Create;
-    TestStatement;
-    ReadLn;
-    TestAutoMapper;
-    ReadLn;
+    //TestStatement;
+    //ReadLn;
+    //TestAutoMapper;
+    //ReadLn;
+    TestAutoMapperOut;
+    //ReadLn;
   finally
     FreeAndNil(MyMapper);
     FreeAndNil(MyConnector);
