@@ -30,15 +30,20 @@
 unit EasySqliteOrm;
 {$MODE ObjFpc}
 {$H+}
+{$INTERFACES CORBA}
 
 interface
 
 uses
-  Classes, SysUtils, TypInfo, Contnrs, Fgl,
+  Classes, SysUtils, TypInfo, Contnrs,
   (* project units *)
   EasySqlite;
 
 type
+  IObjectContainer = interface
+    procedure AddObject(AnObject: TObject);
+  end;
+
   TSqliteAutoMapper = class(TObject)
     private
       function GetObjectFromCurrentRecord(Statement: TSqliteStatement; OutputClass: TClass): TObject;
@@ -48,16 +53,26 @@ type
           @param(AStatement a prepared TSqliteStatement with named parameters)
           @param(AObject a object containing the paramter values in published properties) *)
       procedure BindObjectToParams(const Statement: TSqliteStatement; const AObject: TObject);
-      (*: Execute a given TSqliteStatement and returns the first datarecord as an auto-mapped object.
+      (*: Execute a given TSqliteStatement and returns the first data record as an auto-mapped object.
           @param(AStatement a prepared TSqliteStatement)
           @param(AOuttputClass type of the class to be returned)
           @returns(a object from type AOutputClass or @nil if the query returns no result) *)
       function ExecuteStatementAsObject(const Statement: TSqliteStatement; const OutputClass: TClass): TObject;
-      (*: Execute a given TSqliteStatement and returns result as a list with auto-mapped objects.
+      (*: Execute a given TSqliteStatement and add the results as auto generated objects to an object list.
           @param(Statement a prepared TSqliteStatement)
           @param(OutputClass type of the class to be returned)
           @param(List a object of type TObjectList to which the retrieved objects are added) *)
       procedure ExecuteStatementAndAppendList(Statement: TSqliteStatement; OutputClass: TClass; List: TObjectList);
+      (*: Execute a given TSqliteStatement and add the results as auto generated objects to an object list.
+          @param(Statement a prepared TSqliteStatement)
+          @param(OutputClass type of the class to be returned)
+          @param(List a object of type TFPObjectList to which the retrieved objects are added) *)
+      procedure ExecuteStatementAndAppendList(Statement: TSqliteStatement; OutputClass: TClass; List: TFPObjectList);
+      (*: Execute a given TSqliteStatement and add the results as auto generated objects to a container.
+          @param(Statement a prepared TSqliteStatement)
+          @param(OutputClass type of the class to be returned)
+          @param(Container a object implementing the @seealso(IObjectContainer) interface) *)
+      procedure ExecuteStatementAndAppendList(Statement: TSqliteStatement; OutputClass: TClass; Container: IObjectContainer);
   end;
 
 implementation
@@ -135,6 +150,30 @@ begin
     while Statement.Fetch do begin
       o := GetObjectFromCurrentRecord(Statement, OutputClass);
       List.Add(o);
+    end;
+  end;
+end;
+
+procedure TSqliteAutoMapper.ExecuteStatementAndAppendList(Statement: TSqliteStatement; OutputClass: TClass; List: TFPObjectList);
+var
+  o: TObject;
+begin
+  if Statement.Execute then begin
+    while Statement.Fetch do begin
+      o := GetObjectFromCurrentRecord(Statement, OutputClass);
+      List.Add(o);
+    end;
+  end;
+end;
+
+procedure TSqliteAutoMapper.ExecuteStatementAndAppendList(Statement: TSqliteStatement; OutputClass: TClass; Container: IObjectContainer);
+var
+  o: TObject;
+begin
+  if Statement.Execute then begin
+    while Statement.Fetch do begin
+      o := GetObjectFromCurrentRecord(Statement, OutputClass);
+      Container.AddObject(o);
     end;
   end;
 end;

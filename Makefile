@@ -1,4 +1,4 @@
 all: doc
 
 doc:
-	pasdoc core/sqlitei.pas core/sqliteorm.pas -E ./help  -T SqliteI --marker=: --use-tipue-search --write-uses-list
+	pasdoc core/easysqlite.pas core/easysqliteorm.pas -E ./help  -T easySqlite --use-tipue-search --write-uses-list --introduction=documents/intro.txt --conclusion=documents/howto.txt

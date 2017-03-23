@@ -1,8 +1,9 @@
 program SqliteI_Tests;
 {$MODE ObjFpc}
 {$H+}
+{$INTERFACES CORBA}
 
-uses heaptrc, Classes, SysUtils, SQLite3db,
+uses heaptrc, Classes, SysUtils, SQLite3db, Fgl,
   (* project units *)
   EasySqlite, EasySqliteOrm;
 
@@ -13,7 +14,6 @@ type
       FId: Int64;
       FName: String;
       FTown: String;
-      FBlafasel: String;
     published
       property Active: Boolean read FActive write FActive;
       property Id: Int64 read FId write FId;
@@ -21,10 +21,15 @@ type
       property Name: String read FName;
   end;
 
+  TMyRecordList = class(specialize TFPGObjectList<TMyRecord>, IObjectContainer)
+    private
+      procedure AddObject(AnObject: TObject);
+  end;
+
 var
   MyConnector: TSqliteConnector = nil;
   MyMapper: TSqliteAutoMapper = nil;
-  x: TSQLite;
+  x: TMyRecordList;
 
 function GenerateStatement(Connector: TSqliteConnector): TSqliteStatement;
 begin
@@ -97,6 +102,11 @@ begin
     FreeANdNil(MyRec);
     FreeAndNil(MyStatement)
   end;
+end;
+
+procedure TMyRecordList.AddObject(AnObject: TObject);
+begin
+  Self.Add(TMyRecord(AnObject));
 end;
 
 begin

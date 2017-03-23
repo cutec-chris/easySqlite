@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -37,7 +37,6 @@
       <Unit0>
         <Filename Value="SqliteMemoryLeak.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="SqliteMemoryLeak"/>
       </Unit0>
       <Unit1>
         <Filename Value="sqlite3db.pas"/>
@@ -51,7 +50,6 @@
       <Unit3>
         <Filename Value="sqlite3.pp"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="sqlite3"/>
       </Unit3>
     </Units>
   </ProjectOptions>
@@ -63,7 +61,6 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\core"/>
       <UnitOutputDirectory Value="..\obj"/>
     </SearchPaths>
     <Parsing>
@@ -83,12 +80,6 @@
         <UseHeaptrc Value="True"/>
       </Debugging>
     </Linking>
-    <Other>
-      <CompilerMessages>
-        <MsgFileName Value=""/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

@@ -1,0 +1,13 @@
+@shorttitle(Welcome)
+@title(Welcome to easySqlite)
+
+@section(1 Quickstart I want to start now!)
+
+Jump to the @link(howto How to) section. You will find there easy examples for @bold(easySqlite).
+
+@html(<hr>)
+
+
+@section(1 Bugs I have found a bug)
+
+Please contact me: http://bugs.ypa-software.de/

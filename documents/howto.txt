@@ -1,0 +1,210 @@
+@html(<style>.longcode{background-color: #dddddd; padding: 5px;}</style>)
+
+@shorttitle(How to)
+@title(How to start with easySqlite)
+
+@tableOfContents
+
+@html(<hr>)
+
+@section(1 Create Create a test database)
+
+
+
+
+@longcode(#
+CREATE TABLE "customers" (
+  "Id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  "Name" TEXT NOT NULL,
+  "Address" TEXT NOT NULL
+);
+
+CREATE TABLE "products" (
+  "Id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  "Name" TEXT NOT NULL,
+  "Description" TEXT,
+  "Price" REAL NOT NULL
+);
+
+CREATE TABLE "productstocks" (
+  "Id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  "ProductId" INTEGER NOT NULL,
+  "Count" INTEGER NOT NULL
+);#)
+
+@html(<hr>)
+
+@section(1 Set Set up database connector)
+
+@longcode(#
+var
+  Connection: TSqliteConnector;
+
+(* ... *)
+
+
+#)
+
+@html(<hr>)
+
+@section(1 QueryEdit Query and edit the data)
+
+@section(2 Insert Insert data)
+
+@longcode(# var
+  St: TSqliteStatement;
+begin
+  try
+    St := Connector.Prepare('INSERT INTO Customers (Name, Address) VALUES (?, ?)')
+                   .BindParam('Seven of Nine')
+                   .BindParam('Astrometrics, Voyager');
+    if St.Execute then
+      WriteLn(Format('Affected Rows: %d', [St.AffectedRows]))
+    else
+      WriteLn(St.ErrorMessage)
+  finally
+    FreeAndNil(St);
+end; #)
+
+
+@section(2 Retrieve Retrieve data)
+
+@longcode(#var
+  St: TSqliteStatement;
+begin
+  try
+    St := Connector.Prepare('SELECT * FROM customers WHERE Name <> @Name')
+                   .BindParam('@Name', 'Seven of Nine');
+    if St.Execute then begin
+      while St.Fetch do begin
+        WriteLn(Format('%d | %s | %s', [St.Integers('Id') , St.Strings('Name'), St.Strings('Address')]));
+      end;
+    end else
+      WriteLn(St.ErrorMessage);
+  finally
+    FreeAndNil(St);
+  end; #)
+
+
+@section(2 Update Update data)
+
+@longcode(#var
+  St: TSqliteStatement;
+begin
+  try
+    St := Connector.Prepare('UPDATE customers SET Address = @NewAddress WHERE Address LIKE @OldAddress')
+                   .BindParam('@OldAddress', '%Voyager')
+                   .BindParam('@NewAddress', 'Enterprise');
+   if St.Execute then begin
+      WriteLn(Format('Affected Rows: %d', [St.AffectedRows]));
+    end else
+      WriteLn(St.ErrorMessage);
+  finally
+    FreeAndNil(St);
+  end;#)
+
+
+@section(2 Delete Delete data)
+
+@longcode(#var
+  St: TSqliteStatement;
+begin
+  try
+    St := Connector.Prepare('DELETE FROM customers WHERE Name LIKE @Name')
+                   .BindParam('@Name', 'Harry Kim');
+   if St.Execute then begin
+      WriteLn(Format('Affected Rows: %d', [St.AffectedRows]));
+    end else
+      WriteLn(St.ErrorMessage);
+  finally
+    FreeAndNil(St);
+  end;#)
+
+@html(<hr>)
+
+@section(1 Mapper Use the OO-Mapper)
+
+@section(2 Model Set up the model classes)
+
+@longcode(#
+unit Model;
+{$MODE ObjFpc}
+{$H+}
+{$M+}
+
+interface
+
+uses
+  Classes, SysUtils;
+
+type
+  TProduct = class(TObject)
+    private
+      FDescription: String;
+      FId: Int64;
+      FName: String;
+      FPrice: Double;
+    public
+      procedure PrintContent;
+    published
+      property Id: Int64 read FId write FId;
+      property Name: String read FName write FName;
+      property Description: String read FDescription write FDescription;
+      property Price: Double read FPrice write FPrice;
+  end;
+
+  TProductStock = class(TObject)
+    private
+      FCount: Int64;
+      FId: Int64;
+      FProductId: Int64;
+    published
+      property Id: Int64 read FId write FId;
+      property ProductId: Int64 read FProductId write FProductId;
+      property Count: Int64 read FCount write FCount;
+  end;
+
+implementation
+
+procedure TProduct.PrintContent;
+begin
+  WriteLn(Format('{"Id": %d, "Name": "%s", "Description": "%s", "Price": %f}', [Id, Name, Description, Price]));
+end;
+
+end.#)
+
+@section(2 InsertOo Insert data)
+
+@section(2 RetrieveObject Retrieve a single object)
+
+@section(2 RetrieveList Retrieve a list)
+
+@section(2 UpdateOo Update data)
+
+@section(2 RetrieveJoin Retrieve data of JOIN queries)
+
+First add a new class in the @bold(model) unit:
+
+@longcode(#
+  (* ... *)
+
+  TStockedProduct = class(TProduct)
+    private
+      FCount: Int64;
+    public
+      procedure PrintContent;
+    published
+      property Count: Int64 read FCount write FCount;
+  end;
+
+  (* ... *)
+
+  procedure TStockedProduct.PrintContent;
+  begin
+    WriteLn(Format('{"Id": %d, "Name": "%s", "Description": "%s", "Price": %f, "Count": %d}', [Id, Name, Description, Price, Count]));
+  end;
+ 
+  (* ... *)
+#)
+
+@section(2 RetrieveInterface Use own container class for list retrieval)
