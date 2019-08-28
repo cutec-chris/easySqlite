@@ -262,7 +262,7 @@ function TSqliteStatement.BindParam(ParamName: String; AString: String): TSqlite
 var
   StringValue: String;
 begin
-  StringValue := Pas2SQLStr(AString);
+  StringValue := AString;
   ReplaceParam(ParamName, StringValue);
   Result := Self;
 end;
